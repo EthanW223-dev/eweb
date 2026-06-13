@@ -208,10 +208,9 @@ function loadPuter(): Promise<void> {
   return puterLoading;
 }
 
-function puterSpeak(
-  text: string,
-  who: "ai" | "caller",
-): Promise<HTMLAudioElement> | null {
+function getPuterTTS():
+  | ((t: string, opts: { voice: string; engine: string; language: string }) => Promise<HTMLAudioElement>)
+  | null {
   const w = window as unknown as {
     puter?: {
       ai?: {
@@ -222,12 +221,21 @@ function puterSpeak(
       };
     };
   };
-  const fn = w.puter?.ai?.txt2speech;
+  return w.puter?.ai?.txt2speech ?? null;
+}
+
+// Amazon Polly "generative" voices sound the most human (conversational, with
+// natural intonation). We try generative first, then fall back to neural.
+function puterSpeak(
+  text: string,
+  who: "ai" | "caller",
+  engine: string,
+): Promise<HTMLAudioElement> | null {
+  const fn = getPuterTTS();
   if (!fn) return null;
-  // Warm, natural Polly neural voices — distinct for each speaker.
   return fn(text, {
     voice: who === "ai" ? "Joanna" : "Matthew",
-    engine: "neural",
+    engine,
     language: "en-US",
   });
 }
@@ -294,14 +302,15 @@ export function VoiceDemo() {
     setAiText("");
   };
 
-  // Speak a line and resolve when finished. Tries lifelike Puter neural TTS
-  // first, then falls back to the best built-in browser voice.
+  // Speak a line as humanly as possible: try Polly "generative" (most natural),
+  // then "neural", then the best built-in browser voice. Resolve when finished.
   const say = (text: string, who: "ai" | "caller" = "ai") =>
     new Promise<void>((resolve) => {
       setAiText(text);
       setStatus("speaking");
       setSpeaking(true);
       let done = false;
+      let playingOk = false;
       const fin = () => {
         if (done) return;
         done = true;
@@ -327,29 +336,49 @@ export function VoiceDemo() {
         setTimeout(fin, est(text) + 2000);
       };
 
-      let p: Promise<HTMLAudioElement> | null = null;
-      try {
-        p = cancelRef.current ? null : puterSpeak(text, who);
-      } catch {
-        p = null;
-      }
-
-      if (p) {
+      // Try each Polly engine in order of human-ness, then browser speech.
+      const engines = ["generative", "neural"];
+      const tryEngine = (i: number) => {
+        if (done) return;
+        if (cancelRef.current) {
+          fin();
+          return;
+        }
+        if (i >= engines.length) {
+          webSpeak();
+          return;
+        }
+        let p: Promise<HTMLAudioElement> | null = null;
+        try {
+          p = puterSpeak(text, who, engines[i]);
+        } catch {
+          p = null;
+        }
+        if (!p) {
+          webSpeak();
+          return;
+        }
         p.then((audio) => {
           if (cancelRef.current) {
             fin();
             return;
           }
           audioRef.current = audio;
+          audio.onplaying = () => {
+            playingOk = true;
+          };
           audio.onended = fin;
-          audio.onerror = () => webSpeak();
+          // Only fall back if playback never actually started.
+          audio.onerror = () => {
+            if (!playingOk) tryEngine(i + 1);
+          };
           const play = audio.play();
-          if (play && typeof play.catch === "function") play.catch(() => webSpeak());
-          setTimeout(fin, est(text) + 6000); // safety if neural audio stalls
-        }).catch(() => webSpeak());
-      } else {
-        webSpeak();
-      }
+          if (play && typeof play.catch === "function") play.catch(() => tryEngine(i + 1));
+          setTimeout(fin, est(text) + 7000); // safety if audio stalls
+        }).catch(() => tryEngine(i + 1));
+      };
+
+      tryEngine(0);
     });
 
   /* ----------------------- Live conversation ----------------------- */
