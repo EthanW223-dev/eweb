@@ -8,10 +8,24 @@ Claude. No database needed — the transcript is carried in the request URL.
 
 1. Someone calls your Twilio number.
 2. Twilio POSTs to `https://www.ewebbuild.com/api/voice`.
-3. This function speaks a greeting, listens to the caller (speech-to-text),
-   sends what they said to Claude, and speaks Claude's reply — looping until the
-   call wraps up (greeting → answer questions → book a consultation / take a
-   message → hang up).
+3. The AI (named **Riley** — change `AGENT_NAME` in `voice.js`) greets them,
+   listens (speech-to-text), and chats via Claude — answering questions and
+   booking a consultation — until the call wraps up.
+4. **Real booking:** when the caller confirms a name + day/time, the function
+   automatically **texts the caller a confirmation** and **texts you an alert**
+   with their number and a **one-tap "Add to Google Calendar" link**.
+
+## Environment variables
+
+| Variable | Required | Purpose |
+| --- | --- | --- |
+| `ANTHROPIC_API_KEY` | ✅ yes | Powers the conversation (Claude). |
+| `TWILIO_ACCOUNT_SID` | for SMS | Send confirmation texts. From Twilio Console. |
+| `TWILIO_AUTH_TOKEN` | for SMS | Send confirmation texts. From Twilio Console. |
+| `OWNER_PHONE` | for alerts | Your mobile (e.g. `+1512...`) — gets a text on every booking. |
+
+Without the Twilio/owner vars the call still works end-to-end; it just won't
+send texts. The greeting voice is set by `VOICE` in `voice.js`.
 
 ## One-time setup (~10 minutes)
 
@@ -46,15 +60,19 @@ Dial your Twilio number and talk to the AI. That's it.
 ## Costs (roughly)
 
 - Twilio number: ~$1.15/month + ~$0.014/min voice + a small speech-recognition fee.
+- SMS confirmations: ~$0.0079 per text.
 - Claude (Haiku): a few cents per call.
 
 ## Notes / next steps
 
-- Voice is Amazon Polly "Joanna" via Twilio. Swap `VOICE` in `voice.js` for
-  another (e.g. `Polly.Matthew`) if you prefer.
-- Edit the `SYSTEM` prompt in `voice.js` to change how the receptionist behaves,
-  its pricing answers, or booking flow.
-- To actually write bookings to a real calendar (Google Calendar) or text a
-  confirmation, we'd add another step — ask and we'll wire it up.
+- Voice is the lifelike `Polly.Joanna-Neural`. Swap `VOICE` in `voice.js` for
+  another (e.g. `Polly.Matthew-Neural`) if you prefer. The AI's name (`Riley`)
+  and personality live in `AGENT_NAME` / `SYSTEM` at the top of `voice.js`.
+- **Bookings** text the caller + you, with a one-tap Google Calendar link. To
+  instead write the event *straight* into your Google Calendar automatically,
+  that's a Google service-account add-on — ask and we'll wire it up.
+- **US A2P note:** to text US numbers reliably in production, Twilio requires
+  one-time A2P 10DLC registration (free-ish, ~1 day). Trial accounts can text
+  verified numbers right away for testing.
 - **Security:** consider validating Twilio's request signature before going to
   production so only Twilio can trigger the endpoint.

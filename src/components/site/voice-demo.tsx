@@ -157,14 +157,14 @@ function Row({
 
 /* --------------------------- Sample call --------------------------- */
 const sample: { from: "ai" | "caller"; text: string; act?: "reveal" | "pick" | "book" }[] = [
-  { from: "ai", text: "Hi, thanks for calling Eweb! This is the AI receptionist. How can I help today?" },
-  { from: "caller", text: "Hey, I'd like to book a consultation this week." },
-  { from: "ai", text: "Happy to help. Let me check the calendar for the best open time.", act: "reveal" },
-  { from: "ai", text: "Thursday at 2 PM is wide open — does that work?", act: "pick" },
-  { from: "caller", text: "Thursday at 2 is perfect." },
-  { from: "ai", text: "Great, you're booked for Thursday at 2 PM. I'll text a confirmation. Anything else?", act: "book" },
-  { from: "caller", text: "That's everything, thanks!" },
-  { from: "ai", text: "My pleasure. Talk soon!" },
+  { from: "ai", text: "Hey, thanks for calling Eweb! This is Riley, the AI receptionist — how can I help you out today?" },
+  { from: "caller", text: "Hi! I've been meaning to book a consultation this week." },
+  { from: "ai", text: "Love it — let me pull up the calendar and find you the best time.", act: "reveal" },
+  { from: "ai", text: "Looks like Thursday at 2 is wide open. Want me to grab that for you?", act: "pick" },
+  { from: "caller", text: "Yeah, Thursday at 2 is perfect." },
+  { from: "ai", text: "You're all set for Thursday at 2 — I'll shoot you a text to confirm. Anything else?", act: "book" },
+  { from: "caller", text: "Nope, that's everything. Thanks!" },
+  { from: "ai", text: "My pleasure — thanks for calling Eweb. Talk soon!" },
 ];
 
 /* ------------------------------ Intent ----------------------------- */
@@ -418,7 +418,7 @@ export function VoiceDemo() {
         setSlot(requested);
         setHighlight(true);
         setConvState("confirm");
-        await say(`I've got ${slotLabel(requested)} open. Want me to book that?`);
+        await say(`Nice, ${slotLabel(requested)} is open — want me to grab that for you?`);
         listen();
         return;
       }
@@ -426,7 +426,7 @@ export function VoiceDemo() {
       setSlot(DEFAULT_SLOT);
       setHighlight(true);
       setConvState("confirm");
-      await say("Let me check the calendar… Thursday at 2 PM is open this week. Want me to book that for you?");
+      await say("Sure thing — let me take a peek at the calendar. Looks like Thursday at 2 is wide open. Want me to grab it for you?");
       listen();
       return;
     }
@@ -438,25 +438,25 @@ export function VoiceDemo() {
         setHighlight(true);
         setBooked(true);
         setConvState("wrap");
-        await say(`Perfect — booked for ${slotLabel(requested)}. I'll send a confirmation. Anything else?`);
+        await say(`Perfect, you're all set for ${slotLabel(requested)} — I'll shoot you a text to confirm. Anything else I can help with?`);
         listen();
         return;
       }
       if (YES.test(t) && !NO.test(t)) {
         setBooked(true);
         setConvState("wrap");
-        await say(`Done! You're booked for ${slotLabel(slot)} and I'll text you a confirmation. Anything else?`);
+        await say(`Awesome, you're all set for ${slotLabel(slot)} — I'll text you a confirmation. Anything else I can help with?`);
         listen();
         return;
       }
       if (NO.test(t)) {
         setSlot("3-1");
         setHighlight(true);
-        await say("No problem — I also have Friday at 10:30. Does that work?");
+        await say("No worries — I've also got Friday at 10:30. Does that work better?");
         listen();
         return;
       }
-      await say("Sorry, I didn't quite catch that. Would you like me to book Thursday at 2 PM?");
+      await say("Sorry, I didn't quite catch that — want me to lock in Thursday at 2?");
       listen();
       return;
     }
@@ -464,13 +464,13 @@ export function VoiceDemo() {
     if (s === "wrap") {
       if (NO.test(t) || DONE.test(t)) {
         setConvState("ended");
-        await say("Perfect. Thanks for calling Eweb — talk soon!");
+        await say("Perfect — thanks so much for calling Eweb. Talk soon!");
         setStatus("");
         setPhase("done");
         return;
       }
       setConvState("need");
-      await say("Sure — what else can I help you with?");
+      await say("Of course — what else can I do for you?");
       listen();
       return;
     }
@@ -486,7 +486,7 @@ export function VoiceDemo() {
     await loadPuter();
     if (cancelRef.current) return;
     setStatus("greeting");
-    await say("Hi there! Thanks for calling Eweb — this is the AI receptionist. What can I do for you today?");
+    await say("Hey, thanks for calling Eweb! This is Riley, your AI receptionist — what can I do for you today?");
     listen();
   };
 
