@@ -109,17 +109,29 @@
   }
 }
 
-/* Accent gradient text helper (white → electric violet sheen) */
+/* Accent gradient text helper — the violet sheen travels across the text */
 .text-gradient {
   background: linear-gradient(
     100deg,
-    #ffffff,
-    var(--color-accent-soft) 50%,
-    #ffffff
+    #ffffff 0%,
+    var(--color-accent-soft) 25%,
+    #ffffff 50%,
+    var(--color-accent-soft) 75%,
+    #ffffff 100%
   );
+  background-size: 220% 100%;
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+  animation: text-accent-move 7s linear infinite;
+}
+@keyframes text-accent-move {
+  from {
+    background-position: 0% 50%;
+  }
+  to {
+    background-position: 200% 50%;
+  }
 }
 
 /* Pure-accent gradient (for eyebrow chips, small accents) */
@@ -152,6 +164,16 @@
   background-size: 22px 22px;
 }
 
+/* Voice-demo waveform bars */
+@keyframes wave {
+  from {
+    height: 4px;
+  }
+  to {
+    height: 20px;
+  }
+}
+
 /* Infinite marquee used by the logo/clients strip */
 @keyframes marquee-x {
   from {
@@ -171,4 +193,5 @@
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   .animate-marquee { animation: none; }
+  .text-gradient { animation: none; }
 }

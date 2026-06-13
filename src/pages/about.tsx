@@ -1,6 +1,5 @@
 import { Code2, GraduationCap, Rocket } from "lucide-react";
 import { Container, SectionHeading, Button } from "@/components/site/primitives";
-import { Testimonials } from "@/components/ui/unique-testimonial";
 import { GithubCard } from "@/components/site/github";
 
 const facts = [
@@ -97,17 +96,6 @@ export default function AboutPage() {
           <div className="mt-10">
             <GithubCard />
           </div>
-        </Container>
-      </section>
-
-      <section className="relative py-12">
-        <Container>
-          <SectionHeading
-            eyebrow="Kind words"
-            title="What people say."
-            subtitle="A few words from people I've built with."
-          />
-          <Testimonials />
         </Container>
       </section>
     </>
