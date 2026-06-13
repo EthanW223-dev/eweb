@@ -9,7 +9,7 @@
 // Setup: see api/README.md. Requires env var ANTHROPIC_API_KEY on Vercel.
 
 const MODEL = "claude-haiku-4-5-20251001"; // fast + cheap, good for live phone
-const VOICE = "Polly.Joanna"; // natural Twilio/Polly voice
+const VOICE = "Polly.Joanna-Neural"; // lifelike neural Twilio/Polly voice
 
 const SYSTEM = `You are the friendly, professional AI phone receptionist for Eweb, a small web agency run by Ethan Wilden. Eweb builds custom websites (a flat $500 one-time fee, launched in about a week) and offers an AI phone-answering service ($100/month).
 

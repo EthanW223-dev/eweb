@@ -179,6 +179,59 @@ const getSR = (): (new () => unknown) | null => {
     | null;
 };
 
+/* Lazily load Puter.js — a free, no-API-key service that gives us lifelike
+ * neural (Amazon Polly) voices in the browser. Loaded only when the demo
+ * starts, never blocks, and we always fall back to built-in speech. */
+let puterLoading: Promise<void> | null = null;
+function loadPuter(): Promise<void> {
+  if (typeof window === "undefined") return Promise.resolve();
+  const w = window as unknown as { puter?: { ai?: { txt2speech?: unknown } } };
+  if (w.puter?.ai?.txt2speech) return Promise.resolve();
+  if (puterLoading) return puterLoading;
+  puterLoading = new Promise<void>((resolve) => {
+    const done = () => resolve();
+    const existing = document.getElementById("puter-js");
+    if (existing) {
+      existing.addEventListener("load", done);
+      setTimeout(done, 4000);
+      return;
+    }
+    const s = document.createElement("script");
+    s.id = "puter-js";
+    s.src = "https://js.puter.com/v2/";
+    s.async = true;
+    s.onload = done;
+    s.onerror = done;
+    document.head.appendChild(s);
+    setTimeout(done, 4000); // never hang the demo waiting on a 3rd party
+  });
+  return puterLoading;
+}
+
+function puterSpeak(
+  text: string,
+  who: "ai" | "caller",
+): Promise<HTMLAudioElement> | null {
+  const w = window as unknown as {
+    puter?: {
+      ai?: {
+        txt2speech?: (
+          t: string,
+          opts: { voice: string; engine: string; language: string },
+        ) => Promise<HTMLAudioElement>;
+      };
+    };
+  };
+  const fn = w.puter?.ai?.txt2speech;
+  if (!fn) return null;
+  // Warm, natural Polly neural voices — distinct for each speaker.
+  return fn(text, {
+    voice: who === "ai" ? "Joanna" : "Matthew",
+    engine: "neural",
+    language: "en-US",
+  });
+}
+
 type Phase = "idle" | "live" | "sample" | "done";
 type Conv = "need" | "confirm" | "wrap" | "ended";
 type Status = "" | "greeting" | "listening" | "thinking" | "speaking";
@@ -199,6 +252,7 @@ export function VoiceDemo() {
   const cancelRef = useRef(false);
   const convRef = useRef<Conv>("need");
   const recRef = useRef<{ abort: () => void; start: () => void } | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const setConvState = (c: Conv) => {
     convRef.current = c;
@@ -207,13 +261,28 @@ export function VoiceDemo() {
 
   const est = (text: string) => Math.max(1600, text.split(" ").length * 360) + 900;
 
+  // Fallback voice picker — prefer the most natural built-in voice available
+  // (Edge/Chrome expose cloud "Natural"/"Online" neural voices for free).
   const pickVoice = (who: "ai" | "caller") => {
     const voices = window.speechSynthesis?.getVoices() ?? [];
     const en = voices.filter((v) => v.lang.toLowerCase().startsWith("en"));
     const pool = en.length ? en : voices;
-    const ai = pool.find((v) => /samantha|zira|aria|jenny|female|google us/i.test(v.name)) || pool[0];
+    const score = (v: SpeechSynthesisVoice) => {
+      let s = 0;
+      if (/natural|neural|online|premium|enhanced/i.test(v.name)) s += 6;
+      if (/google/i.test(v.name)) s += 3;
+      if (!v.localService) s += 2;
+      if (/aria|jenny|libby|sonia|samantha|joanna|emma/i.test(v.name)) s += 1;
+      return s;
+    };
+    const ranked = [...pool].sort((a, b) => score(b) - score(a));
+    const ai = ranked[0];
     if (who === "ai") return ai;
-    return pool.find((v) => v !== ai && /david|guy|mark|male|daniel|fred/i.test(v.name)) || pool.find((v) => v !== ai) || ai;
+    return (
+      ranked.find((v) => v !== ai && /guy|matthew|david|mark|brian|daniel|male/i.test(v.name)) ||
+      ranked.find((v) => v !== ai) ||
+      ai
+    );
   };
 
   const reset = () => {
@@ -225,13 +294,13 @@ export function VoiceDemo() {
     setAiText("");
   };
 
-  // Speak a line and resolve when finished.
+  // Speak a line and resolve when finished. Tries lifelike Puter neural TTS
+  // first, then falls back to the best built-in browser voice.
   const say = (text: string, who: "ai" | "caller" = "ai") =>
     new Promise<void>((resolve) => {
       setAiText(text);
       setStatus("speaking");
       setSpeaking(true);
-      const synth = typeof window !== "undefined" ? window.speechSynthesis : undefined;
       let done = false;
       const fin = () => {
         if (done) return;
@@ -239,19 +308,48 @@ export function VoiceDemo() {
         setSpeaking(false);
         resolve();
       };
-      if (!synth) {
-        setTimeout(fin, est(text));
-        return;
+
+      const webSpeak = () => {
+        const synth = typeof window !== "undefined" ? window.speechSynthesis : undefined;
+        if (!synth) {
+          setTimeout(fin, est(text));
+          return;
+        }
+        const u = new SpeechSynthesisUtterance(text);
+        const v = pickVoice(who);
+        if (v) u.voice = v;
+        u.rate = 0.98;
+        u.pitch = who === "ai" ? 1.05 : 0.95;
+        u.onend = fin;
+        u.onerror = fin;
+        synth.cancel();
+        synth.speak(u);
+        setTimeout(fin, est(text) + 2000);
+      };
+
+      let p: Promise<HTMLAudioElement> | null = null;
+      try {
+        p = cancelRef.current ? null : puterSpeak(text, who);
+      } catch {
+        p = null;
       }
-      const u = new SpeechSynthesisUtterance(text);
-      const v = pickVoice(who);
-      if (v) u.voice = v;
-      u.rate = 1;
-      u.pitch = who === "ai" ? 1.1 : 0.9;
-      u.onend = fin;
-      u.onerror = fin;
-      synth.speak(u);
-      setTimeout(fin, est(text) + 1500);
+
+      if (p) {
+        p.then((audio) => {
+          if (cancelRef.current) {
+            fin();
+            return;
+          }
+          audioRef.current = audio;
+          audio.onended = fin;
+          audio.onerror = () => webSpeak();
+          const play = audio.play();
+          if (play && typeof play.catch === "function") play.catch(() => webSpeak());
+          setTimeout(fin, est(text) + 6000); // safety if neural audio stalls
+        }).catch(() => webSpeak());
+      } else {
+        webSpeak();
+      }
     });
 
   /* ----------------------- Live conversation ----------------------- */
@@ -385,8 +483,10 @@ export function VoiceDemo() {
     setPhase("live");
     setConvState("need");
     if (typeof window !== "undefined" && window.speechSynthesis) window.speechSynthesis.getVoices();
+    await loadPuter();
+    if (cancelRef.current) return;
     setStatus("greeting");
-    await say("Hi! Thanks for calling Eweb. I'm the AI receptionist — how can I help you today?");
+    await say("Hi there! Thanks for calling Eweb — this is the AI receptionist. What can I do for you today?");
     listen();
   };
 
@@ -419,12 +519,26 @@ export function VoiceDemo() {
     setPhase("sample");
     setStatus("speaking");
     if (typeof window !== "undefined" && window.speechSynthesis) window.speechSynthesis.getVoices();
-    setTimeout(() => playSampleFrom(0), 150);
+    loadPuter().then(() => {
+      if (!cancelRef.current) playSampleFrom(0);
+    });
+  };
+
+  const silence = () => {
+    if (typeof window !== "undefined" && window.speechSynthesis) window.speechSynthesis.cancel();
+    if (audioRef.current) {
+      try {
+        audioRef.current.pause();
+      } catch {
+        /* noop */
+      }
+      audioRef.current = null;
+    }
   };
 
   const stop = () => {
     cancelRef.current = true;
-    if (typeof window !== "undefined" && window.speechSynthesis) window.speechSynthesis.cancel();
+    silence();
     recRef.current?.abort();
     setSpeaking(false);
     setStatus("");
@@ -436,9 +550,10 @@ export function VoiceDemo() {
   useEffect(() => {
     return () => {
       cancelRef.current = true;
-      if (typeof window !== "undefined" && window.speechSynthesis) window.speechSynthesis.cancel();
+      silence();
       recRef.current?.abort();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Tap-to-reply chips (work with or without a mic)
@@ -628,7 +743,7 @@ export function VoiceDemo() {
 
         <p className="mt-3 flex items-center justify-center gap-1.5 text-center text-[11px] text-muted-foreground">
           <Volume2 className="size-3" />
-          Real voice · books into a live calendar
+          Lifelike voice · books into a live calendar
         </p>
       </div>
     </div>
