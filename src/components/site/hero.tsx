@@ -1,4 +1,5 @@
-import { ArrowRight, Mic, Star } from "lucide-react";
+import { Link } from "react-router-dom";
+import { ArrowRight, Mic, ArrowUpRight, ShieldCheck } from "lucide-react";
 import { Container, Button } from "./primitives";
 import { ShaderOrb } from "@/components/ui/shader-orb";
 
@@ -52,32 +53,23 @@ export function Hero() {
           </Button>
         </div>
 
-        {/* Social proof */}
-        <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:gap-5">
-          <div className="flex -space-x-2">
-            {[
-              "https://i.pravatar.cc/64?img=12",
-              "https://i.pravatar.cc/64?img=32",
-              "https://i.pravatar.cc/64?img=45",
-              "https://i.pravatar.cc/64?img=5",
-            ].map((src) => (
-              <img
-                key={src}
-                src={src}
-                alt=""
-                loading="lazy"
-                className="size-8 rounded-full border-2 border-background object-cover"
-              />
-            ))}
-          </div>
-          <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
-            <span className="flex text-brand-2">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <Star key={i} className="size-3.5 fill-current" />
-              ))}
+        {/* Honest trust row — who's behind it + a real guarantee, no fake logos */}
+        <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:gap-3">
+          <Link
+            to="/about"
+            className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3.5 py-1.5 text-sm text-muted-foreground backdrop-blur transition-colors hover:border-white/25 hover:text-foreground"
+          >
+            <span className="grid size-5 place-items-center rounded-full bg-[linear-gradient(135deg,var(--color-brand),var(--color-brand-2))] text-[10px] font-bold text-background">
+              E
             </span>
-            Trusted by founders, creators &amp; small businesses
-          </div>
+            Built &amp; run by{" "}
+            <span className="font-medium text-foreground">Ethan Wilden</span>
+            <ArrowUpRight className="size-3.5" />
+          </Link>
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3.5 py-1.5 text-sm text-muted-foreground backdrop-blur">
+            <ShieldCheck className="size-4 text-brand-2" />
+            Hosting &amp; support included
+          </span>
         </div>
 
         {/* Stat strip */}
