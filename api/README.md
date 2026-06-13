@@ -76,3 +76,26 @@ Dial your Twilio number and talk to the AI. That's it.
   verified numbers right away for testing.
 - **Security:** consider validating Twilio's request signature before going to
   production so only Twilio can trigger the endpoint.
+
+---
+
+# On-page demo voice (`/api/tts`) — ElevenLabs (optional)
+
+The talk-to-the-AI demo on the website works for free out of the box (Amazon
+Polly generative voices via Puter). To make it sound **near-indistinguishable
+from a human**, plug in ElevenLabs:
+
+1. Make a free account at <https://elevenlabs.io> → **Profile → API key**.
+2. In Vercel: **Settings → Environment Variables**, add `ELEVENLABS_API_KEY`,
+   then redeploy.
+3. That's it — the demo automatically detects it and switches to ElevenLabs
+   (falling back to the free Polly voices if it's ever missing or out of quota).
+
+Optional overrides: `ELEVENLABS_VOICE_AI` and `ELEVENLABS_VOICE_CALLER` (voice
+ids from your ElevenLabs Voice Library), and `ELEVENLABS_MODEL` (defaults to the
+fast, cheap `eleven_flash_v2_5`).
+
+**Cost:** the free tier is ~10k characters/month. The fixed demo lines are
+cached hard at Vercel's edge (`s-maxage`), so repeat plays and repeat visitors
+don't re-bill ElevenLabs — only brand-new spoken text (the live mic chat) uses
+quota.

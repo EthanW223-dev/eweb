@@ -208,6 +208,22 @@ function loadPuter(): Promise<void> {
   return puterLoading;
 }
 
+/* Probe whether the server-side ElevenLabs proxy (/api/tts) is configured.
+ * Cached after the first check. In local dev (no serverless) this resolves
+ * false, so the demo uses free Polly voices. */
+let elevenReady: boolean | null = null;
+async function checkEleven(): Promise<boolean> {
+  if (elevenReady !== null) return elevenReady;
+  try {
+    const r = await fetch("/api/tts?ping=1");
+    const j = await r.json();
+    elevenReady = !!(j && j.eleven);
+  } catch {
+    elevenReady = false;
+  }
+  return elevenReady;
+}
+
 function getPuterTTS():
   | ((t: string, opts: { voice: string; engine: string; language: string }) => Promise<HTMLAudioElement>)
   | null {
@@ -378,7 +394,23 @@ export function VoiceDemo() {
         }).catch(() => tryEngine(i + 1));
       };
 
-      tryEngine(0);
+      // Most human first: ElevenLabs (server proxy) → Polly engines → browser.
+      if (elevenReady && !cancelRef.current) {
+        const audio = new Audio(`/api/tts?who=${who}&text=${encodeURIComponent(text)}`);
+        audioRef.current = audio;
+        audio.onplaying = () => {
+          playingOk = true;
+        };
+        audio.onended = fin;
+        audio.onerror = () => {
+          if (!playingOk) tryEngine(0);
+        };
+        const play = audio.play();
+        if (play && typeof play.catch === "function") play.catch(() => tryEngine(0));
+        setTimeout(fin, est(text) + 9000);
+      } else {
+        tryEngine(0);
+      }
     });
 
   /* ----------------------- Live conversation ----------------------- */
@@ -512,7 +544,7 @@ export function VoiceDemo() {
     setPhase("live");
     setConvState("need");
     if (typeof window !== "undefined" && window.speechSynthesis) window.speechSynthesis.getVoices();
-    await loadPuter();
+    await Promise.all([loadPuter(), checkEleven()]);
     if (cancelRef.current) return;
     setStatus("greeting");
     await say("Hey, thanks for calling Eweb! This is Riley, your AI receptionist — what can I do for you today?");
@@ -548,7 +580,7 @@ export function VoiceDemo() {
     setPhase("sample");
     setStatus("speaking");
     if (typeof window !== "undefined" && window.speechSynthesis) window.speechSynthesis.getVoices();
-    loadPuter().then(() => {
+    Promise.all([loadPuter(), checkEleven()]).then(() => {
       if (!cancelRef.current) playSampleFrom(0);
     });
   };
