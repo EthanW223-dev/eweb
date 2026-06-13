@@ -1,4 +1,4 @@
-import { ArrowRight, PhoneCall, Star } from "lucide-react";
+import { ArrowRight, Mic, Star } from "lucide-react";
 import { Container, Button } from "./primitives";
 import { ShaderOrb } from "@/components/ui/shader-orb";
 
@@ -46,9 +46,9 @@ export function Hero() {
             Start your project
             <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" />
           </Button>
-          <Button to="/services" variant="outline" size="lg">
-            <PhoneCall className="size-4" />
-            See the AI call service
+          <Button href="#ai-calls" variant="outline" size="lg">
+            <Mic className="size-4" />
+            Talk to our AI
           </Button>
         </div>
 

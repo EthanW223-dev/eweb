@@ -1,8 +1,8 @@
 import { Hero } from "@/components/site/hero";
 import { Logos } from "@/components/site/logos";
-import { Services } from "@/components/site/services";
 import { AIService } from "@/components/site/ai-service";
-import { Work } from "@/components/site/work";
+import { WebsiteShowcase } from "@/components/site/website-showcase";
+import { Services } from "@/components/site/services";
 import { Process } from "@/components/site/process";
 import { Pricing } from "@/components/site/pricing";
 import { FAQ } from "@/components/site/faq";
@@ -13,9 +13,10 @@ export default function HomePage() {
     <>
       <Hero />
       <Logos />
-      <Services />
+      {/* Two flagship products, front and center */}
       <AIService />
-      <Work />
+      <WebsiteShowcase />
+      <Services />
       <Process />
       <Pricing />
       <FAQ />

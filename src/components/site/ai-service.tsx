@@ -5,6 +5,7 @@ import {
   FileText,
   Sparkles,
   CheckCircle2,
+  Mic,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { Container, Button } from "./primitives";
@@ -54,6 +55,10 @@ export function AIService() {
               A missed call is a missed customer. Our AI receptionist answers
               every call, books the job, and hands you the summary — so you can
               stay on the tools and still win the work.
+            </p>
+            <p className="mt-4 inline-flex items-center gap-2 rounded-full border border-brand/30 bg-brand/10 px-4 py-2 text-sm font-medium text-brand-2">
+              <Mic className="size-4" />
+              Try it live — actually talk to it →
             </p>
 
             <div className="mt-8 grid gap-4 sm:grid-cols-2">

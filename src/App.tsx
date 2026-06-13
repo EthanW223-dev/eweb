@@ -5,6 +5,7 @@ import { DottedSurface } from "@/components/ui/dotted-surface";
 import { Navbar } from "@/components/site/navbar";
 import { Footer } from "@/components/site/footer";
 import { PageLoader } from "@/components/site/page-loader";
+import { AIFab } from "@/components/site/ai-fab";
 
 const HomePage = lazy(() => import("@/pages/home"));
 const ServicesPage = lazy(() => import("@/pages/services"));
@@ -90,6 +91,9 @@ export default function App() {
         </main>
         <Footer />
       </div>
+
+      {/* Flagship product, always one tap away */}
+      <AIFab />
     </div>
   );
 }
