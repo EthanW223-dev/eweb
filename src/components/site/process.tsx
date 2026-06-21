@@ -37,7 +37,7 @@ export function Process() {
           {steps.map((s) => (
             <li
               key={s.n}
-              className="relative rounded-2xl border border-white/10 bg-card/50 p-6 backdrop-blur-sm"
+              className="relative rounded-2xl border border-white/10 bg-card/50 p-6"
             >
               <span className="font-display text-3xl font-bold text-gradient">
                 {s.n}

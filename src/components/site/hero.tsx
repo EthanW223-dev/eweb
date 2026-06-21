@@ -23,7 +23,7 @@ export function Hero() {
 
       <Container className="relative flex flex-col items-center text-center">
         {/* Value-prop badge */}
-        <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-sm text-muted-foreground backdrop-blur">
+        <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-sm text-muted-foreground">
           <span className="flex size-2 items-center justify-center">
             <span className="absolute size-2 animate-ping rounded-full bg-brand-2/70" />
             <span className="size-2 rounded-full bg-brand-2" />
@@ -57,7 +57,7 @@ export function Hero() {
         <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:gap-3">
           <Link
             to="/about"
-            className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3.5 py-1.5 text-sm text-muted-foreground backdrop-blur transition-colors hover:border-white/25 hover:text-foreground"
+            className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3.5 py-1.5 text-sm text-muted-foreground transition-colors hover:border-white/25 hover:text-foreground"
           >
             <span className="grid size-5 place-items-center rounded-full bg-[linear-gradient(135deg,var(--color-brand),var(--color-brand-2))] text-[10px] font-bold text-background">
               E
@@ -66,14 +66,14 @@ export function Hero() {
             <span className="font-medium text-foreground">Ethan Wilden</span>
             <ArrowUpRight className="size-3.5" />
           </Link>
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3.5 py-1.5 text-sm text-muted-foreground backdrop-blur">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3.5 py-1.5 text-sm text-muted-foreground">
             <ShieldCheck className="size-4 text-brand-2" />
             Hosting &amp; support included
           </span>
         </div>
 
         {/* Stat strip */}
-        <dl className="mt-12 grid w-full max-w-xl grid-cols-3 divide-x divide-white/10 rounded-2xl border border-white/10 bg-card/40 py-5 backdrop-blur-sm">
+        <dl className="mt-12 grid w-full max-w-xl grid-cols-3 divide-x divide-white/10 rounded-2xl border border-white/10 bg-card/40 py-5">
           {stats.map((s) => (
             <div key={s.label} className="flex flex-col items-center px-2">
               <dt className="font-display text-2xl font-bold sm:text-3xl">

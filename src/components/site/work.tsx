@@ -43,7 +43,7 @@ const projects: Project[] = [
 ];
 
 const cardClass =
-  "group relative flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-card/50 backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:border-brand/40";
+  "group relative flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-card/50 transition-all duration-300 hover:-translate-y-1 hover:border-brand/40";
 
 function CardInner({ p }: { p: Project }) {
   return (
@@ -56,7 +56,7 @@ function CardInner({ p }: { p: Project }) {
           className="size-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-card via-card/20 to-transparent" />
-        <span className="absolute right-3 top-3 grid size-9 place-items-center rounded-full bg-background/70 text-foreground backdrop-blur transition-colors group-hover:bg-white group-hover:text-black">
+        <span className="absolute right-3 top-3 grid size-9 place-items-center rounded-full bg-background/70 text-foreground transition-colors group-hover:bg-white group-hover:text-black">
           <ArrowUpRight className="size-4" />
         </span>
       </div>

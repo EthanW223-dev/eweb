@@ -22,79 +22,73 @@ export function GooeyText({
   const text2Ref = React.useRef<HTMLSpanElement>(null);
 
   React.useEffect(() => {
-    const t1 = text1Ref.current;
-    const t2 = text2Ref.current;
-    if (!t1 || !t2 || texts.length === 0) return;
+    let textIndex = texts.length - 1;
+    let time = new Date();
+    let morph = 0;
+    let cooldown = cooldownTime;
 
-    const n = texts.length;
-    let current = 0; // index of the word currently shown (held in t1)
-    let phase: "hold" | "morph" = "hold";
-    let elapsed = 0; // seconds spent in the current phase
-    let last = performance.now();
-    let raf = 0;
-
-    // t1 = current word, t2 = next word.
-    const syncText = () => {
-      t1.textContent = texts[current % n];
-      t2.textContent = texts[(current + 1) % n];
-    };
-
-    // Steady state: current word crisp, next word hidden.
-    const showHold = () => {
-      t1.style.filter = "";
-      t1.style.opacity = "100%";
-      t2.style.filter = "";
-      t2.style.opacity = "0%";
-    };
-
-    // fraction 0 -> 1 : t1 (current) blurs/fades out, t2 (next) sharpens/fades in.
     const setMorph = (fraction: number) => {
-      t2.style.filter = `blur(${Math.min(8 / fraction - 8, 100)}px)`;
-      t2.style.opacity = `${Math.pow(fraction, 0.4) * 100}%`;
+      if (text1Ref.current && text2Ref.current) {
+        text2Ref.current.style.filter = `blur(${Math.min(8 / fraction - 8, 100)}px)`;
+        text2Ref.current.style.opacity = `${Math.pow(fraction, 0.4) * 100}%`;
 
-      const inv = 1 - fraction;
-      t1.style.filter = `blur(${Math.min(8 / inv - 8, 100)}px)`;
-      t1.style.opacity = `${Math.pow(inv, 0.4) * 100}%`;
+        fraction = 1 - fraction;
+        text1Ref.current.style.filter = `blur(${Math.min(8 / fraction - 8, 100)}px)`;
+        text1Ref.current.style.opacity = `${Math.pow(fraction, 0.4) * 100}%`;
+      }
     };
 
-    syncText();
-    showHold();
+    const doCooldown = () => {
+      morph = 0;
+      if (text1Ref.current && text2Ref.current) {
+        text2Ref.current.style.filter = "";
+        text2Ref.current.style.opacity = "100%";
+        text1Ref.current.style.filter = "";
+        text1Ref.current.style.opacity = "0%";
+      }
+    };
 
-    const tick = (now: number) => {
-      raf = requestAnimationFrame(tick);
-      // Clamp dt so a slow/background frame can't make the morph jump.
-      const dt = Math.min((now - last) / 1000, 0.1);
-      last = now;
-      elapsed += dt;
+    const doMorph = () => {
+      morph -= cooldown;
+      cooldown = 0;
+      let fraction = morph / morphTime;
 
-      if (phase === "hold") {
-        if (elapsed >= cooldownTime) {
-          phase = "morph";
-          elapsed = 0;
-        } else {
-          showHold();
-          return;
+      if (fraction > 1) {
+        cooldown = cooldownTime;
+        fraction = 1;
+      }
+
+      setMorph(fraction);
+    };
+
+    function animate() {
+      requestAnimationFrame(animate);
+      const newTime = new Date();
+      const shouldIncrementIndex = cooldown > 0;
+      const dt = (newTime.getTime() - time.getTime()) / 1000;
+      time = newTime;
+
+      cooldown -= dt;
+
+      if (cooldown <= 0) {
+        if (shouldIncrementIndex) {
+          textIndex = (textIndex + 1) % texts.length;
+          if (text1Ref.current && text2Ref.current) {
+            text1Ref.current.textContent = texts[textIndex % texts.length];
+            text2Ref.current.textContent = texts[(textIndex + 1) % texts.length];
+          }
         }
-      }
-
-      // phase === "morph"
-      let fraction = elapsed / morphTime;
-      if (fraction >= 1) {
-        // Morph complete: advance to the next word and settle.
-        setMorph(1);
-        current = (current + 1) % n;
-        syncText();
-        showHold();
-        phase = "hold";
-        elapsed = 0;
+        doMorph();
       } else {
-        setMorph(Math.max(fraction, 0.0001));
+        doCooldown();
       }
+    }
+
+    animate();
+
+    return () => {
+      // Cleanup function if needed
     };
-
-    raf = requestAnimationFrame(tick);
-
-    return () => cancelAnimationFrame(raf);
   }, [texts, morphTime, cooldownTime]);
 
   return (

@@ -62,7 +62,7 @@ export function Services() {
           {services.map((s) => (
             <div
               key={s.title}
-              className="group relative rounded-2xl border border-white/10 bg-card/50 p-6 backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:border-brand/40 hover:bg-card/70"
+              className="group relative rounded-2xl border border-white/10 bg-card/50 p-6 transition-all duration-300 hover:-translate-y-1 hover:border-brand/40 hover:bg-card/70"
             >
               <div className="mb-5 grid size-12 place-items-center rounded-xl border border-white/10 bg-white/5 text-white">
                 <s.icon className="size-6" strokeWidth={1.75} />

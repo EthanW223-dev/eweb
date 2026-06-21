@@ -64,7 +64,7 @@ export function Navbar() {
             onChange={handleNav}
             selected={activeIndex >= 0 ? activeIndex : null}
             activeColor="text-foreground"
-            className="justify-self-center border-white/10 bg-background/60 backdrop-blur-xl"
+            className="justify-self-center border-white/10 bg-background/60 backdrop-blur-md"
           />
           <Button to="/contact" variant="cta" className="justify-self-end shrink-0">
             Get a quote
@@ -73,7 +73,7 @@ export function Navbar() {
 
         {/* Mobile */}
         <div className="sm:hidden">
-          <div className="flex items-center justify-between rounded-full border border-white/10 bg-background/70 px-4 py-2.5 backdrop-blur-xl">
+          <div className="flex items-center justify-between rounded-full border border-white/10 bg-background/70 px-4 py-2.5 backdrop-blur-md">
             <BrandMark />
             <button
               onClick={() => setOpen((v) => !v)}
@@ -92,7 +92,7 @@ export function Navbar() {
                 animate={{ opacity: 1, y: 0, height: "auto" }}
                 exit={{ opacity: 0, y: -8, height: 0 }}
                 transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
-                className="mt-2 overflow-hidden rounded-2xl border border-white/10 bg-background/90 p-2 backdrop-blur-xl"
+                className="mt-2 overflow-hidden rounded-2xl border border-white/10 bg-background/90 p-2 backdrop-blur-md"
               >
                 {mobileLinks.map((l) => {
                   const active = location.pathname === l.to;

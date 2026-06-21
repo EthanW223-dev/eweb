@@ -102,7 +102,7 @@ export function WebsiteShowcase() {
             <Link
               key={d.name}
               to="/contact"
-              className="group relative flex flex-col rounded-2xl border border-white/10 bg-card/50 p-4 backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:border-brand/40"
+              className="group relative flex flex-col rounded-2xl border border-white/10 bg-card/50 p-4 transition-all duration-300 hover:-translate-y-1 hover:border-brand/40"
             >
               <MiniSite demo={d} />
               <div className="mt-4 flex items-center justify-between px-1">

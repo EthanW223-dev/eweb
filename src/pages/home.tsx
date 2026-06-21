@@ -1,4 +1,4 @@
-import { Hero } from "@/components/site/hero";
+import { WebsiteWall } from "@/components/site/website-wall";
 import { Logos } from "@/components/site/logos";
 import { AIService } from "@/components/site/ai-service";
 import { WebsiteShowcase } from "@/components/site/website-showcase";
@@ -11,7 +11,7 @@ import { CTA } from "@/components/site/cta";
 export default function HomePage() {
   return (
     <>
-      <Hero />
+      <WebsiteWall />
       <Logos />
       {/* Two flagship products, front and center */}
       <AIService />

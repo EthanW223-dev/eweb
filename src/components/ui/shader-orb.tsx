@@ -1,4 +1,4 @@
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import * as THREE from "three";
 import { cn } from "@/lib/utils";
 
@@ -19,6 +19,7 @@ export function ShaderOrb({
   color?: string;
 }) {
   const mountRef = useRef<HTMLDivElement>(null);
+  const [failed, setFailed] = useState(false);
 
   useEffect(() => {
     const mount = mountRef.current;
@@ -37,9 +38,15 @@ export function ShaderOrb({
     );
     camera.position.z = 3;
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    let renderer: THREE.WebGLRenderer;
+    try {
+      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    } catch {
+      setFailed(true); // WebGL unavailable — show the CSS glow fallback instead.
+      return;
+    }
     renderer.setSize(mount.clientWidth, mount.clientHeight);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
     mount.appendChild(renderer.domElement);
 
     const geometry = new THREE.IcosahedronGeometry(1.2, 64);
@@ -132,13 +139,25 @@ export function ShaderOrb({
     const mesh = new THREE.Mesh(geometry, material);
     scene.add(mesh);
 
+    // Only render when the orb is actually on screen and the tab is visible —
+    // no point running a full shader sphere behind content the user scrolled past.
+    let visible = true;
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        visible = entry.isIntersecting;
+      },
+      { threshold: 0 },
+    );
+    io.observe(mount);
+
     let frameId = 0;
     const animate = (t: number) => {
+      frameId = requestAnimationFrame(animate);
+      if (!visible || document.hidden) return;
       material.uniforms.time.value = prefersReduced ? 0 : t * 0.0003;
       mesh.rotation.y += prefersReduced ? 0 : 0.0006;
       mesh.rotation.x += prefersReduced ? 0 : 0.0002;
       renderer.render(scene, camera);
-      frameId = requestAnimationFrame(animate);
     };
     animate(0);
 
@@ -164,6 +183,7 @@ export function ShaderOrb({
 
     return () => {
       cancelAnimationFrame(frameId);
+      io.disconnect();
       window.removeEventListener("resize", handleResize);
       window.removeEventListener("mousemove", handleMouseMove);
       geometry.dispose();
@@ -174,6 +194,26 @@ export function ShaderOrb({
       }
     };
   }, [color]);
+
+  // CSS fallback glow for environments without WebGL (so the orb is never blank).
+  if (failed) {
+    return (
+      <div
+        aria-hidden
+        className={cn(
+          "pointer-events-none absolute inset-0 grid place-items-center",
+          className,
+        )}
+      >
+        <div
+          className="size-[70%] animate-pulse rounded-full"
+          style={{
+            background: `radial-gradient(circle at 50% 45%, ${color}cc, ${color}33 42%, transparent 70%)`,
+          }}
+        />
+      </div>
+    );
+  }
 
   return (
     <div

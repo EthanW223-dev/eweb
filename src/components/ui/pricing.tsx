@@ -63,7 +63,7 @@ export function Pricing({
           >
             <div
               className={cn(
-                "group relative flex h-full flex-col rounded-3xl border p-7 backdrop-blur-sm",
+                "group relative flex h-full flex-col rounded-3xl border p-7",
                 "transition-all duration-300 ease-out will-change-transform",
                 "hover:-translate-y-2.5 hover:border-brand/60 hover:shadow-2xl hover:shadow-brand/20",
                 plan.isPopular

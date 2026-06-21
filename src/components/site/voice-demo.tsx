@@ -646,7 +646,7 @@ export function VoiceDemo() {
         aria-hidden
         className="accent-glow pointer-events-none absolute -inset-6 -z-0 rounded-[2.5rem] opacity-40 blur-2xl"
       />
-      <div className="relative mx-auto w-full max-w-sm overflow-hidden rounded-3xl border border-white/10 bg-card/70 p-5 backdrop-blur-xl">
+      <div className="relative mx-auto w-full max-w-sm overflow-hidden rounded-3xl border border-white/10 bg-card/70 p-5">
         {/* Header */}
         <div className="flex items-center gap-3 border-b border-white/10 pb-4">
           <div className="relative grid size-11 place-items-center rounded-full bg-brand/15 text-brand-2">

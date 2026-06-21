@@ -1,197 +1,113 @@
-@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Work+Sans:wght@300;400;500;600;700&display=swap");
 @import "tailwindcss";
 
-@custom-variant dark (&:is(.dark *));
+@theme {
+  --font-sans: "Nimbus Sans TW01", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
 
 :root {
-  --radius: 0.75rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.141 0.005 285.823);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.141 0.005 285.823);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.141 0.005 285.823);
-  --primary: oklch(0.21 0.006 285.885);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.967 0.001 286.375);
-  --secondary-foreground: oklch(0.21 0.006 285.885);
-  --muted: oklch(0.967 0.001 286.375);
-  --muted-foreground: oklch(0.552 0.016 285.938);
-  --accent: oklch(0.967 0.001 286.375);
-  --accent-foreground: oklch(0.21 0.006 285.885);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.92 0.004 286.32);
-  --input: oklch(0.92 0.004 286.32);
-  --ring: oklch(0.705 0.015 286.067);
+  --font-heading: "HelveticaNowDisplay-Medium", "Helvetica Neue", Arial, sans-serif;
+  --font-body: "HelveticaNowDisplayW01-Rg", "Helvetica Neue", Arial, sans-serif;
 }
 
-.dark {
-  --background: oklch(0.02 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.1 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.1 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.985 0 0);
-  --primary-foreground: oklch(0.1 0 0);
-  --secondary: oklch(0.18 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.18 0 0);
-  --muted-foreground: oklch(0.72 0 0);
-  --accent: oklch(0.18 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 12%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.75 0 0);
+html {
+  font-family: "Nimbus Sans TW01", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-@theme inline {
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-card: var(--card);
-  --color-card-foreground: var(--card-foreground);
-  --color-popover: var(--popover);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-primary: var(--primary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-secondary: var(--secondary);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-muted: var(--muted);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-destructive: var(--destructive);
-  --color-border: var(--border);
-  --color-input: var(--input);
-  --color-ring: var(--ring);
-
-  /* Mono base + a single electric-violet accent */
-  --color-brand: oklch(0.67 0.21 285);
-  --color-brand-2: oklch(0.78 0.15 286);
-  --color-accent-solid: oklch(0.62 0.25 282);
-  --color-accent-soft: oklch(0.72 0.2 285);
-  --color-cta: #ffffff;
-  --color-cta-2: #d4d4d4;
-
-  --font-sans: "Work Sans", system-ui, sans-serif;
-  --font-display: "Outfit", system-ui, sans-serif;
+body {
+  margin: 0;
 }
 
-@layer base {
-  * {
-    border-color: var(--border);
-    outline-color: var(--ring);
+/* Typewriter cursor blink (Mainframe hero) */
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 1;
   }
-  html {
-    scroll-behavior: smooth;
-  }
-  body {
-    margin: 0;
-    background-color: var(--background);
-    color: var(--foreground);
-    font-family: var(--font-sans);
-    -webkit-font-smoothing: antialiased;
-  }
-  section[id] {
-    scroll-margin-top: 6rem;
-  }
-  h1, h2, h3, h4, h5 {
-    font-family: var(--font-display);
-    letter-spacing: -0.02em;
-  }
-  ::selection {
-    background: color-mix(in oklab, var(--color-brand) 40%, transparent);
+  50% {
+    opacity: 0;
   }
 }
 
-/* Accent gradient text helper — the violet sheen travels across the text */
-.text-gradient {
-  background: linear-gradient(
-    100deg,
-    #ffffff 0%,
-    var(--color-accent-soft) 25%,
-    #ffffff 50%,
-    var(--color-accent-soft) 75%,
-    #ffffff 100%
-  );
-  background-size: 220% 100%;
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  animation: text-accent-move 7s linear infinite;
-}
-@keyframes text-accent-move {
+/* Mainframe fades up from the black transition */
+@keyframes mainframe-in {
   from {
-    background-position: 0% 50%;
+    opacity: 0;
   }
   to {
-    background-position: 200% 50%;
+    opacity: 1;
   }
 }
-
-/* Pure-accent gradient (for eyebrow chips, small accents) */
-.text-accent-gradient {
-  background: linear-gradient(
-    100deg,
-    var(--color-accent-soft),
-    var(--color-accent-solid)
-  );
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+.mainframe-in {
+  animation: mainframe-in 0.85s ease both;
 }
 
-/* Soft accent glow used behind hero / cards */
-.accent-glow {
-  background: radial-gradient(
-    ellipse at center,
-    color-mix(in oklab, var(--color-accent-solid) 40%, transparent),
-    transparent 65%
-  );
-}
-
-/* Subtle dotted grid backdrop for section panels */
-.bg-dot-grid {
-  background-image: radial-gradient(
-    color-mix(in oklab, var(--color-foreground) 10%, transparent) 1px,
-    transparent 1px
-  );
-  background-size: 22px 22px;
-}
-
-/* Voice-demo waveform bars */
-@keyframes wave {
+/* ---- Hero entrance animations ---- */
+@keyframes fade-up {
   from {
-    height: 4px;
+    opacity: 0;
+    transform: translateY(24px);
+    filter: blur(6px);
   }
   to {
-    height: 20px;
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
   }
 }
 
-/* Infinite marquee used by the logo/clients strip */
-@keyframes marquee-x {
+@keyframes fade-down {
   from {
-    transform: translateX(0);
+    opacity: 0;
+    transform: translateY(-16px);
   }
   to {
-    transform: translateX(-50%);
+    opacity: 1;
+    transform: translateY(0);
   }
 }
-.animate-marquee {
-  animation: marquee-x var(--marquee-duration, 32s) linear infinite;
+
+@keyframes hero-rise {
+  from {
+    opacity: 0;
+    transform: translateY(64px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
-.marquee-pause:hover .animate-marquee {
-  animation-play-state: paused;
+
+.animate-fade-up {
+  animation: fade-up 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.animate-fade-down {
+  animation: fade-down 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.animate-hero-rise {
+  animation: hero-rise 1.1s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes screen-in {
+  from {
+    opacity: 0;
+    transform: scale(1.015);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+.animate-screen-in {
+  animation: screen-in 0.6s ease both;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  html { scroll-behavior: auto; }
-  .animate-marquee { animation: none; }
-  .text-gradient { animation: none; }
+  .animate-fade-up,
+  .animate-fade-down,
+  .animate-hero-rise,
+  .animate-screen-in {
+    animation: none;
+  }
 }

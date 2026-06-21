@@ -1,15 +1,20 @@
 'use client';
 import { cn } from '@/lib/utils';
 import { useTheme } from 'next-themes';
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 
-type DottedSurfaceProps = Omit<React.ComponentProps<'div'>, 'ref'>;
+type DottedSurfaceProps = Omit<React.ComponentProps<'div'>, 'ref'> & {
+	/** Force dot color, overriding the theme default. */
+	dotColor?: 'auto' | 'black' | 'white';
+};
 
-export function DottedSurface({ className, ...props }: DottedSurfaceProps) {
+export function DottedSurface({ className, dotColor = 'auto', ...props }: DottedSurfaceProps) {
 	const { theme } = useTheme();
+	const dark = dotColor === 'auto' ? theme === 'dark' : dotColor === 'white';
 
 	const containerRef = useRef<HTMLDivElement>(null);
+	const [failed, setFailed] = useState(false);
 	const sceneRef = useRef<{
 		scene: THREE.Scene;
 		camera: THREE.PerspectiveCamera;
@@ -38,11 +43,21 @@ export function DottedSurface({ className, ...props }: DottedSurfaceProps) {
 		);
 		camera.position.set(0, 355, 1220);
 
-		const renderer = new THREE.WebGLRenderer({
-			alpha: true,
-			antialias: true,
-		});
-		renderer.setPixelRatio(window.devicePixelRatio);
+		// Guard WebGL creation so a missing/blocked GPU leaves the background blank
+		// instead of crashing the app (this is a decorative layer).
+		let renderer: THREE.WebGLRenderer;
+		try {
+			renderer = new THREE.WebGLRenderer({
+				alpha: true,
+				antialias: true,
+			});
+		} catch {
+			setFailed(true); // WebGL unavailable — show the CSS dot-grid fallback.
+			return;
+		}
+		// Cap pixel ratio — on a HiDPI display the default DPR (2–3) renders 4–9× the
+		// pixels for a purely decorative layer, a big GPU drain.
+		renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
 		renderer.setSize(window.innerWidth, window.innerHeight);
 		renderer.setClearColor(scene.fog.color, 0);
 
@@ -65,7 +80,7 @@ export function DottedSurface({ className, ...props }: DottedSurfaceProps) {
 				const z = iy * SEPARATION - (AMOUNTY * SEPARATION) / 2;
 
 				positions.push(x, y, z);
-				if (theme === 'dark') {
+				if (dark) {
 					colors.push(255, 255, 255);
 				} else {
 					colors.push(0, 0, 0);
@@ -95,11 +110,20 @@ export function DottedSurface({ className, ...props }: DottedSurfaceProps) {
 		let count = 0;
 		let animationId = 0;
 		let disposed = false;
+		let lastFrame = 0;
+
+		// Throttle to ~30fps — the wave reads identically but halves the per-frame
+		// cost of a background that runs the whole time the site is open.
+		const FRAME_MS = 1000 / 30;
 
 		// Animation function
-		const animate = () => {
+		const animate = (now = 0) => {
 			if (disposed) return;
 			animationId = requestAnimationFrame(animate);
+
+			// Skip work when the tab is hidden or the frame budget hasn't elapsed.
+			if (document.hidden || now - lastFrame < FRAME_MS) return;
+			lastFrame = now;
 
 			const positionAttribute = geometry.attributes.position;
 			const positions = positionAttribute.array as Float32Array;
@@ -177,7 +201,25 @@ export function DottedSurface({ className, ...props }: DottedSurfaceProps) {
 
 			sceneRef.current = null;
 		};
-	}, [theme]);
+	}, [theme, dark]);
+
+	// CSS dot-grid fallback for environments without WebGL (so the animated
+	// background is never just blank).
+	if (failed) {
+		return (
+			<div
+				aria-hidden
+				className={cn('pointer-events-none fixed inset-0 -z-1', className)}
+				style={{
+					backgroundImage: dark
+						? 'radial-gradient(rgba(255,255,255,0.16) 1px, transparent 1px)'
+						: 'radial-gradient(rgba(0,0,0,0.18) 1px, transparent 1px)',
+					backgroundSize: '26px 26px',
+				}}
+				{...props}
+			/>
+		);
+	}
 
 	return (
 		<div

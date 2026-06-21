@@ -34,7 +34,7 @@ export function Button({
     variant === "cta" &&
       "bg-white text-black shadow-lg shadow-white/10 hover:-translate-y-0.5 hover:shadow-white/25",
     variant === "outline" &&
-      "border border-white/15 bg-white/5 text-foreground backdrop-blur hover:border-white/30 hover:bg-white/10",
+      "border border-white/15 bg-white/5 text-foreground hover:border-white/30 hover:bg-white/10",
     variant === "ghost" && "text-muted-foreground hover:text-foreground",
     className,
   );
@@ -56,7 +56,7 @@ export function Button({
 
 export function Eyebrow({ children }: { children: ReactNode }) {
   return (
-    <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3.5 py-1.5 text-xs font-medium text-muted-foreground backdrop-blur">
+    <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3.5 py-1.5 text-xs font-medium text-muted-foreground">
       <span className="size-1.5 rounded-full bg-brand-2 shadow-[0_0_8px_var(--color-brand-2)]" />
       {children}
     </span>

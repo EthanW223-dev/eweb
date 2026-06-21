@@ -33,7 +33,7 @@ const faqs = [
 function FaqItem({ q, a }: { q: string; a: string }) {
   const [open, setOpen] = useState(false);
   return (
-    <div className="rounded-2xl border border-white/10 bg-card/40 backdrop-blur-sm">
+    <div className="rounded-2xl border border-white/10 bg-card/40">
       <button
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}

@@ -5,7 +5,7 @@ export function CTA() {
   return (
     <section className="relative py-24 sm:py-28">
       <Container>
-        <div className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-card/60 px-6 py-16 text-center backdrop-blur-md sm:px-12 sm:py-20">
+        <div className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-card/60 px-6 py-16 text-center sm:px-12 sm:py-20">
           {/* accent glow + dotted grid backdrop */}
           <div
             aria-hidden

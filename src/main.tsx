@@ -1,16 +1,8 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import { BrowserRouter } from 'react-router-dom'
-import './index.css'
-import App from './App.tsx'
-import { ThemeProvider } from '@/components/theme-provider'
+import { createRoot } from "react-dom/client";
+import "./index.css";
+import App from "./App.tsx";
 
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <ThemeProvider>
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
-    </ThemeProvider>
-  </StrictMode>,
-)
+// StrictMode intentionally omitted: it double-mounts every component in dev,
+// which doubles WebGL context creation (ASCII + shader + showcase backgrounds)
+// and triggers a context-loss storm that crashes the GPU.
+createRoot(document.getElementById("root")!).render(<App />);

@@ -22,7 +22,7 @@ export function Contact() {
   return (
     <section id="contact" className="relative py-24 sm:py-28">
       <Container>
-        <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-card/60 p-8 backdrop-blur-md sm:p-12">
+        <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-card/60 p-8 sm:p-12">
           <div
             aria-hidden
             className="pointer-events-none absolute -right-20 -top-24 size-80 rounded-full bg-[radial-gradient(circle,rgba(255,255,255,0.12),transparent_60%)] blur-2xl"

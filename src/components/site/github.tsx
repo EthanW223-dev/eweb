@@ -32,7 +32,7 @@ const repos: {
 
 export function GithubCard() {
   return (
-    <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-card/50 p-6 backdrop-blur-sm sm:p-8">
+    <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-card/50 p-6 sm:p-8">
       <div
         aria-hidden
         className="accent-glow pointer-events-none absolute -right-16 -top-20 size-64 rounded-full opacity-30 blur-2xl"
@@ -66,7 +66,7 @@ export function GithubCard() {
           href={GITHUB_URL}
           target="_blank"
           rel="noopener noreferrer"
-          className="group inline-flex shrink-0 items-center justify-center gap-2 rounded-full border border-white/15 bg-white/5 px-5 py-2.5 text-sm font-medium text-foreground backdrop-blur transition-all hover:border-white/30 hover:bg-white/10"
+          className="group inline-flex shrink-0 items-center justify-center gap-2 rounded-full border border-white/15 bg-white/5 px-5 py-2.5 text-sm font-medium text-foreground transition-all hover:border-white/30 hover:bg-white/10"
         >
           <GithubIcon className="size-4" />
           View profile
